@@ -170,4 +170,13 @@ public class DBConnection {
 			return false;
 		}				
 	}
+	
+	
+	public boolean checkValue(String table_name, String column_name, String value) {
+		if(execSql("SELECT "+column_name+" FROM "+table_name+" WHERE "+column_name+"="+value) == 1) {
+    		return true;
+    	}else {
+    		return false;
+    	}
+	}
 }

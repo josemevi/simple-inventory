@@ -67,7 +67,7 @@ public class Signup extends HttpServlet {
 			json.put("msg", "Already logged");
 		}
 		
-		response.getWriter().print(json.toString().replaceAll("\n", ""));
+		response.getWriter().print(json.toString());
 	}
 
 }
