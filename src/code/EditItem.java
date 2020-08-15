@@ -10,9 +10,6 @@ import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
 
-/**
- * 
- */
 @WebServlet("/editItem")
 public class EditItem extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -23,26 +20,26 @@ public class EditItem extends HttpServlet {
     }
 
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession(false);
-		JSONObject requestJson = con.retrieveJson(request);
-		JSONObject json = new JSONObject();
-		String item_id = requestJson.getString("item_id");
-		String item_description = requestJson.getString("item_description");
-		String item_price = requestJson.getString("item_price");
-		String supplier_id = requestJson.getString("supplier_id");
-		String reduction_id = requestJson.getString("reduction_id");
-		String item_img_url = requestJson.getString("item_img_url");
-		if(!con.checkString(item_price)) {
-			item_price = null;
-		}
-		if(!con.checkString(supplier_id)) {
-			supplier_id = null;
-		}
-		if(!con.checkString(reduction_id)) {
-			reduction_id = null;
-		}		
+		HttpSession session = request.getSession(false);		
+		JSONObject json = new JSONObject();		
 		if(session != null) { 
-			if(con.checkString(item_description)) {
+			JSONObject requestJson = con.retrieveJson(request);
+			String item_id = requestJson.getString("item_id");
+			String item_description = requestJson.getString("item_description");
+			String item_price = requestJson.getString("item_price");
+			String supplier_id = requestJson.getString("supplier_id");
+			String reduction_id = requestJson.getString("reduction_id");
+			String item_img_url = requestJson.getString("item_img_url");
+			if(!con.checkString(item_price)) {
+				item_price = null;
+			}
+			if(!con.checkString(supplier_id)) {
+				supplier_id = null;
+			}
+			if(!con.checkString(reduction_id)) {
+				reduction_id = null;
+			}		
+			if(con.checkString(item_description) && con.checkString(item_id)) {
 				String query = "UPDATE items SET item_description ="+con.simpleQuoted(item_description)+", item_price="+item_price+", supplier_id="+supplier_id
 						+", reduction_id="+reduction_id+", item_img_url="+con.simpleQuoted(item_img_url)+"WHERE item_id="+item_id;
 				if(con.execSql(query) == 1) {
@@ -55,7 +52,7 @@ public class EditItem extends HttpServlet {
 				
 			}else {
 				response.setStatus(400);
-				json.put("msg", "Invalid values in important fields detected, please check all the fields");
+				json.put("msg", "Item description can't be empty or invalid item id");
 			}		
 		}else {
 			response.setStatus(403);
@@ -63,5 +60,4 @@ public class EditItem extends HttpServlet {
 		}
 		response.getWriter().print(json.toString());
 	}
-
 }

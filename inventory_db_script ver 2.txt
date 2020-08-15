@@ -113,6 +113,41 @@ ALTER SEQUENCE public.items_item_id_seq OWNED BY public.items.item_id;
 
 
 --
+-- Name: items_prices_reductions; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.items_prices_reductions (
+    id integer NOT NULL,
+    item_id integer NOT NULL,
+    price_reduction_id integer NOT NULL
+);
+
+
+ALTER TABLE public.items_prices_reductions OWNER TO postgres;
+
+--
+-- Name: items_prices_reductions_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.items_prices_reductions_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.items_prices_reductions_id_seq OWNER TO postgres;
+
+--
+-- Name: items_prices_reductions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.items_prices_reductions_id_seq OWNED BY public.items_prices_reductions.id;
+
+
+--
 -- Name: items_states; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -257,7 +292,7 @@ ALTER SEQUENCE public.user_roles_user_rol_id_seq OWNED BY public.user_roles.rol_
 
 CREATE TABLE public.users (
     user_id integer NOT NULL,
-    user_rol_id integer NOT NULL,
+    user_rol_id integer DEFAULT 1 NOT NULL,
     user_name character varying NOT NULL,
     user_password character varying NOT NULL
 );
@@ -302,6 +337,13 @@ ALTER TABLE ONLY public.items_deactivations ALTER COLUMN deactivation_id SET DEF
 
 
 --
+-- Name: items_prices_reductions id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.items_prices_reductions ALTER COLUMN id SET DEFAULT nextval('public.items_prices_reductions_id_seq'::regclass);
+
+
+--
 -- Name: items_states state_id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -341,9 +383,7 @@ ALTER TABLE ONLY public.users ALTER COLUMN user_id SET DEFAULT nextval('public.u
 --
 
 COPY public.items (item_id, item_code, item_description, item_price, state_id, supplier_id, reduction_id, item_creation_date, user_creator_id, item_img_url) FROM stdin;
-2	2	creation test	\N	0	\N	\N	2020-08-11 22:39:47.282	1	
 0	0	default item	0	0	0	\N	2020-11-08 00:00:00	0	
-4	3	Prueba	100	0	0	\N	2020-08-11 22:53:15.786	1	algo
 \.
 
 
@@ -352,6 +392,14 @@ COPY public.items (item_id, item_code, item_description, item_price, state_id, s
 --
 
 COPY public.items_deactivations (deactivation_id, deactivation_reason, user_deactivation_id, item_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: items_prices_reductions; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.items_prices_reductions (id, item_id, price_reduction_id) FROM stdin;
 \.
 
 
@@ -370,6 +418,7 @@ COPY public.items_states (state_id, state_name) FROM stdin;
 --
 
 COPY public.prices_reductions (reduction_id, reduction_price, reduction_start_date, reduction_end_date) FROM stdin;
+1	20	2020-08-12 00:00:00	2020-08-15 00:00:00
 \.
 
 
@@ -378,7 +427,9 @@ COPY public.prices_reductions (reduction_id, reduction_price, reduction_start_da
 --
 
 COPY public.suppliers (supplier_id, supplier_name, supplier_country) FROM stdin;
-0	default	España
+0	Items C.A	España
+1	Oso Polar	Venezuela
+2	Jikae	Alemania
 \.
 
 
@@ -398,8 +449,6 @@ COPY public.user_roles (rol_id, rol_name) FROM stdin;
 
 COPY public.users (user_id, user_rol_id, user_name, user_password) FROM stdin;
 0	0	admin\n	admin
-1	1	default	default
-2	1	default2	default
 \.
 
 
@@ -407,14 +456,21 @@ COPY public.users (user_id, user_rol_id, user_name, user_password) FROM stdin;
 -- Name: items_deactivations_deactivation_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.items_deactivations_deactivation_id_seq', 1, false);
+SELECT pg_catalog.setval('public.items_deactivations_deactivation_id_seq', 3, true);
 
 
 --
 -- Name: items_item_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.items_item_id_seq', 4, true);
+SELECT pg_catalog.setval('public.items_item_id_seq', 5, true);
+
+
+--
+-- Name: items_prices_reductions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.items_prices_reductions_id_seq', 4, true);
 
 
 --
@@ -428,14 +484,14 @@ SELECT pg_catalog.setval('public.items_states_tate_id_seq', 1, false);
 -- Name: prices_reductions_reduction_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.prices_reductions_reduction_id_seq', 1, false);
+SELECT pg_catalog.setval('public.prices_reductions_reduction_id_seq', 3, true);
 
 
 --
 -- Name: suppliers_supplier_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.suppliers_supplier_id_seq', 1, false);
+SELECT pg_catalog.setval('public.suppliers_supplier_id_seq', 2, true);
 
 
 --
@@ -449,7 +505,7 @@ SELECT pg_catalog.setval('public.user_roles_user_rol_id_seq', 1, false);
 -- Name: users_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_user_id_seq', 2, true);
+SELECT pg_catalog.setval('public.users_user_id_seq', 4, true);
 
 
 --
@@ -474,6 +530,14 @@ ALTER TABLE ONLY public.items_deactivations
 
 ALTER TABLE ONLY public.items
     ADD CONSTRAINT items_pkey PRIMARY KEY (item_id);
+
+
+--
+-- Name: items_prices_reductions items_prices_reductions_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.items_prices_reductions
+    ADD CONSTRAINT items_prices_reductions_pkey PRIMARY KEY (id);
 
 
 --
@@ -533,11 +597,27 @@ ALTER TABLE ONLY public.items_deactivations
 
 
 --
+-- Name: items_prices_reductions item_detail_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.items_prices_reductions
+    ADD CONSTRAINT item_detail_id FOREIGN KEY (item_id) REFERENCES public.items(item_id) NOT VALID;
+
+
+--
 -- Name: items reduction_detail_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.items
     ADD CONSTRAINT reduction_detail_id FOREIGN KEY (reduction_id) REFERENCES public.prices_reductions(reduction_id) NOT VALID;
+
+
+--
+-- Name: items_prices_reductions reduction_detail_id; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.items_prices_reductions
+    ADD CONSTRAINT reduction_detail_id FOREIGN KEY (price_reduction_id) REFERENCES public.prices_reductions(reduction_id) NOT VALID;
 
 
 --

@@ -71,46 +71,19 @@ public class DBConnection {
 						}
 						if(query.toUpperCase().contains("SELECT") && query.toUpperCase().contains("WHERE")){
 							status = 1;
-						}
-						
-					}
-			
-					} else if(query.toUpperCase().contains("INSERT") || query.toUpperCase().contains("UPDATE") || query.toUpperCase().contains("DELETE")){
-						status = stmt.executeUpdate(query);
-						
-					} else {
-						status = 0;
-						
-					}
-				} catch (ClassNotFoundException | SQLException e) {	            
-					e.printStackTrace();
+						}						
+					}			
+				} else if(query.toUpperCase().contains("INSERT") || query.toUpperCase().contains("UPDATE") || query.toUpperCase().contains("DELETE")){
+					status = stmt.executeUpdate(query);
+					
+				} else {
+					status = 0;					
 				}
+			}catch (ClassNotFoundException | SQLException e) {	            
+				e.printStackTrace();
+			}
 			return status;
-		/*}else {
-			return 0;
-		}*/
-
 	}
-	
-	 String getJSONFromDB (String query) throws SQLException {
-		 String result = "";
-		 try {
-			this.connection = null;
-			Class.forName("org.postgresql.Driver");
-			this.connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/Ecommerce","postgres","masterkey");
-			Statement stmt = this.connection.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_READ_ONLY);
-			ResultSet rs = stmt.executeQuery(query);
-			while(rs.next()){  
-				result = rs.getString(1);  
-			}  
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return result;
-		
-	}
-	
 	
 	/* this function returns the JSON embedded in the buffer reader from
 	 * HttpServletRequest of each servlet method i put this here in order to re-use code
@@ -131,7 +104,7 @@ public class DBConnection {
 		
 	}
 	
-	/* This function just returns the data from the request */
+	/* This function just returns the data from the query */
 	String getData(){
 		return this.json.replaceAll("\n", "");
 	}
@@ -161,8 +134,7 @@ public class DBConnection {
 	}
 	
 	/* 
-	 * Evalues a String for empty, null or undefined values
-	 */
+	 * Evalues a String for empty, null or undefined values */
 	public boolean checkString(String var) {
 		if(var != null && !var.isEmpty() && !var.equals("undefined")) {
 			return true;
@@ -171,9 +143,9 @@ public class DBConnection {
 		}				
 	}
 	
-	
+	/* checks if some value already exist in a table */
 	public boolean checkValue(String table_name, String column_name, String value) {
-		if(execSql("SELECT "+column_name+" FROM "+table_name+" WHERE "+column_name+"="+value) == 1) {
+		if(execSql("SELECT "+column_name+" FROM "+table_name+" WHERE "+column_name+"="+simpleQuoted(value)) == 1) {
     		return true;
     	}else {
     		return false;

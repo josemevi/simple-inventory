@@ -10,14 +10,17 @@ import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
 
-@WebServlet("/getItemInfo")
-public class GetItemInfo extends HttpServlet {
+/*
+ * Makes use of the items_prices_reductions table to take all the values that have been assigned to a item
+ */
+@WebServlet("/getItemPriceReduxInfo")
+public class GetItemPriceReduxInfo extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-    DBConnection con = new DBConnection();
-       
-  
-    public GetItemInfo() {
-        super();        
+	DBConnection con = new DBConnection();
+
+    public GetItemPriceReduxInfo() {
+        super();
+        
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -26,18 +29,18 @@ public class GetItemInfo extends HttpServlet {
 		if(session != null) { 
 			String item_id = request.getParameter("item_id");
 			if(con.checkString(item_id)) {
-				String query = "SELECT items.item_code, items.item_description, items.item_price, "
-						+ "items.state_id, items_states.state_name, items.item_creation_date, items.user_creator_id, "
-						+ "users.user_name, items.supplier_id, suppliers.supplier_name, suppliers.supplier_country FROM items"
-						+" INNER JOIN items_states ON items.state_id = items_states.state_id "
-						+ "INNER JOIN users ON items.user_creator_id = users.user_id "
-						+ "INNER JOIN suppliers ON items.supplier_id = suppliers.supplier_id "
-						+ "WHERE items.item_id="+item_id;
+				String query = "SELECT prices_reductions.reduction_price, prices_reductions.reduction_start_date, "
+						+ "prices_reductions.reduction_end_date FROM items_prices_reductions "
+						+ "INNER JOIN prices_reductions ON items_prices_reductions.price_reduction_id = prices_reductions.reduction_id "
+						+ " WHERE items_prices_reductions.item_id ="+item_id;
 				if(con.execSql(query) == 1) {
-					JSONObject jsonRes = new JSONObject("{"+con.doubleQuoted("items")+":["+con.getData()+"]}");			
+					JSONObject jsonRes = new JSONObject("{"+con.doubleQuoted("info")+":["+con.getData()+"]}");			
 					response.setStatus(200);
-					json.put("itemsData", jsonRes.get("items"));
-				}else {			
+					json.put("itemPriceReduxData", jsonRes.get("info"));
+				}else if(!con.checkString(con.getData())) {			
+					response.setStatus(200);
+					json.put("msg", "No results");
+				}else {
 					response.setStatus(500);
 					json.put("msg", "Server Error");
 				}

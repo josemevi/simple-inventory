@@ -10,27 +10,23 @@ import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
 
-/**
- * 
- */
 @WebServlet("/addPriceRedux")
 public class AddPriceRedux extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	DBConnection con = new DBConnection();
  
     public AddPriceRedux() {
-        super();
-       
+        super();      
     }
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession(false);
-		JSONObject requestJson = con.retrieveJson(request);
-		JSONObject json = new JSONObject();
-		String reduction_price = requestJson.getString("reduction_price");
-		String reduction_start_date = requestJson.getString("reduction_start_date");
-		String reduction_end_date = requestJson.getString("reduction_end_date");
+		HttpSession session = request.getSession(false);		
+		JSONObject json = new JSONObject();		
 		if(session != null) {
+			JSONObject requestJson = con.retrieveJson(request);
+			String reduction_price = requestJson.getString("reduction_price");
+			String reduction_start_date = requestJson.getString("reduction_start_date");
+			String reduction_end_date = requestJson.getString("reduction_end_date");
 			if(con.checkString(reduction_price) && con.checkString(reduction_start_date) && con.checkString(reduction_end_date)) {
 				String query = "INSERT INTO prices_reductions VALUES (DEFAULT, "+reduction_price+", "+con.simpleQuoted(reduction_start_date)+", "
 						+con.simpleQuoted(reduction_end_date)+")";
@@ -52,5 +48,4 @@ public class AddPriceRedux extends HttpServlet {
 		}
 		response.getWriter().print(json.toString());
 	}
-
 }

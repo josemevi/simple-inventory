@@ -11,14 +11,17 @@ import javax.servlet.http.HttpSession;
 import org.json.JSONObject;
 
 /**
+ * Edits the field "item_state" from the items table, i decided to implement a switch making sure that the
+ * id of "Discontinued" state is always 1, this is because if in the future we desire to add extra state we could simple use
+ * the same EP for all of them also adding extra cases to the switch statement if more actions are required.
  * 
+ * Actually this EP can be use to assign any of the id in "items_states". The discontinued "1" also inserts into 
+ * "items_deactivations" the extra data required when a item is deactivated
  */
 @WebServlet("/editItemState")
 public class EditItemState extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	DBConnection con = new DBConnection();
-
-       
+	DBConnection con = new DBConnection();  
     
     public EditItemState() {
         super();
@@ -26,13 +29,13 @@ public class EditItemState extends HttpServlet {
     }
 
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession(false);
-		JSONObject requestJson = con.retrieveJson(request);
+		HttpSession session = request.getSession(false);		
 		JSONObject json = new JSONObject();
-		String item_id = requestJson.getString("item_id");
-		String state_id = requestJson.getString("state_id");
-		String deactivation_reason = requestJson.getString("deactivation_reason");
 		if(session != null) {
+			JSONObject requestJson = con.retrieveJson(request);
+			String item_id = requestJson.getString("item_id");
+			String state_id = requestJson.getString("state_id");
+			String deactivation_reason = requestJson.getString("deactivation_reason");
 			if(con.checkString(state_id) && con.checkString(item_id)) {
 				String query = "UPDATE items SET state_id="+state_id+" WHERE item_id="+item_id;
 				String query2 = "INSERT INTO items_deactivations VALUES (DEFAULT, "+con.simpleQuoted(deactivation_reason)+", "
@@ -72,5 +75,4 @@ public class EditItemState extends HttpServlet {
 		}
 		response.getWriter().print(json.toString());
 	}
-
 }

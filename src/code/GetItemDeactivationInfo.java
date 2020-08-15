@@ -10,14 +10,13 @@ import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
 
-@WebServlet("/getItemInfo")
-public class GetItemInfo extends HttpServlet {
+@WebServlet("/getItemDeactivationInfo")
+public class GetItemDeactivationInfo extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-    DBConnection con = new DBConnection();
-       
-  
-    public GetItemInfo() {
-        super();        
+	DBConnection con = new DBConnection();
+	
+    public GetItemDeactivationInfo() {
+        super();
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -26,17 +25,14 @@ public class GetItemInfo extends HttpServlet {
 		if(session != null) { 
 			String item_id = request.getParameter("item_id");
 			if(con.checkString(item_id)) {
-				String query = "SELECT items.item_code, items.item_description, items.item_price, "
-						+ "items.state_id, items_states.state_name, items.item_creation_date, items.user_creator_id, "
-						+ "users.user_name, items.supplier_id, suppliers.supplier_name, suppliers.supplier_country FROM items"
-						+" INNER JOIN items_states ON items.state_id = items_states.state_id "
-						+ "INNER JOIN users ON items.user_creator_id = users.user_id "
-						+ "INNER JOIN suppliers ON items.supplier_id = suppliers.supplier_id "
-						+ "WHERE items.item_id="+item_id;
+				String query = "SELECT items_deactivations.deactivation_reason, items_deactivations.deactivation_id, "
+						+ "items_deactivations.user_deactivation_id, users.user_name FROM items_deactivations "
+						+ "INNER JOIN users ON items_deactivations.user_deactivation_id = users.user_id "
+						+ "WHERE item_id="+item_id;
 				if(con.execSql(query) == 1) {
-					JSONObject jsonRes = new JSONObject("{"+con.doubleQuoted("items")+":["+con.getData()+"]}");			
+					JSONObject jsonRes = new JSONObject("{"+con.doubleQuoted("info")+":["+con.getData()+"]}");			
 					response.setStatus(200);
-					json.put("itemsData", jsonRes.get("items"));
+					json.put("itemDeactivationData", jsonRes.get("info"));
 				}else {			
 					response.setStatus(500);
 					json.put("msg", "Server Error");
