@@ -28,20 +28,16 @@ public class EditItem extends HttpServlet {
 			String item_description = requestJson.getString("item_description");
 			String item_price = requestJson.getString("item_price");
 			String supplier_id = requestJson.getString("supplier_id");
-			String reduction_id = requestJson.getString("reduction_id");
 			String item_img_url = requestJson.getString("item_img_url");
 			if(!con.checkString(item_price)) {
 				item_price = null;
 			}
 			if(!con.checkString(supplier_id)) {
 				supplier_id = null;
-			}
-			if(!con.checkString(reduction_id)) {
-				reduction_id = null;
-			}		
+			}				
 			if(con.checkString(item_description) && con.checkString(item_id)) {
 				String query = "UPDATE items SET item_description ="+con.simpleQuoted(item_description)+", item_price="+item_price+", supplier_id="+supplier_id
-						+", reduction_id="+reduction_id+", item_img_url="+con.simpleQuoted(item_img_url)+"WHERE item_id="+item_id;
+						+", item_img_url="+con.simpleQuoted(item_img_url)+"WHERE item_id="+item_id;
 				if(con.execSql(query) == 1) {
 					response.setStatus(200);
 					json.put("msg", "Item Updated");
