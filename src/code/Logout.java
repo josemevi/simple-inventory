@@ -20,15 +20,15 @@ public class Logout extends HttpServlet {
         
     }
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession(false);
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {		
+		HttpSession session = request.getSession();
 		JSONObject json = new JSONObject();
-		if(session != null) {			
+		if(con.checkSession(request.getParameter("JSESSIONID"))) {
 			session.invalidate();
 			response.setStatus(200);
 		}else {
 			response.setStatus(400);
-			json.put("msg", "must sign in first");
+			json.put("msg", "Must Sign In First");
 		}
 		response.getWriter().println(json.toString());
 	}

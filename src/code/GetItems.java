@@ -7,7 +7,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
 
@@ -22,12 +21,12 @@ public class GetItems extends HttpServlet {
     }
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession(false);
-		JSONObject json = new JSONObject();	
-		if(session != null) { 
+		JSONObject json = new JSONObject();
+		response.setCharacterEncoding("UTF-8");
+		if(con.checkSession(request.getParameter("JSESSIONID"))){ 
 			if(con.execSql("SELECT items.item_id, items.item_code, items.item_description, items.item_price, "
 					+ "items.state_id ,items_states.state_name, items.item_creation_date, items.user_creator_id, "
-					+ "users.user_name FROM items INNER JOIN items_states ON "
+					+ "items.item_img_url, users.user_name FROM items INNER JOIN items_states ON "
 					+ "items.state_id = items_states.state_id INNER JOIN users ON "
 					+ "items.user_creator_id = users.user_id") == 1) {
 				JSONObject jsonRes = new JSONObject("{"+con.doubleQuoted("items")+":["+con.getData()+"]}");			

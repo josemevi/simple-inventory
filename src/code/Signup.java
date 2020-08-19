@@ -6,7 +6,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
 
@@ -21,9 +20,8 @@ public class Signup extends HttpServlet {
     }
  
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession(false);
 		JSONObject json = new JSONObject();	
-		if(session == null) {
+		if(!con.checkSession(request.getParameter("JSESSIONID"))) {
 			JSONObject requestJson = con.retrieveJson(request);
 			String username = requestJson.getString("username");
 			String password = requestJson.getString("password");			

@@ -6,7 +6,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
 
@@ -29,17 +28,17 @@ public class EditItemState extends HttpServlet {
     }
 
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession(false);		
 		JSONObject json = new JSONObject();
-		if(session != null) {
+		if(con.checkSession(request.getParameter("JSESSIONID"))) {
 			JSONObject requestJson = con.retrieveJson(request);
+			Integer user_id = requestJson.getInt("user_id");
 			String item_id = requestJson.getString("item_id");
 			String state_id = requestJson.getString("state_id");
 			String deactivation_reason = requestJson.getString("deactivation_reason");
 			if(con.checkString(state_id) && con.checkString(item_id)) {
 				String query = "UPDATE items SET state_id="+state_id+" WHERE item_id="+item_id;
 				String query2 = "INSERT INTO items_deactivations VALUES (DEFAULT, "+con.simpleQuoted(deactivation_reason)+", "
-						+session.getAttribute("userId")+", "+item_id+")";
+						+user_id+", "+item_id+")";
 				switch (state_id) {				
 					case "1":
 						if(con.checkString(deactivation_reason)) {
@@ -67,7 +66,7 @@ public class EditItemState extends HttpServlet {
 				}		
 			}else {
 				response.setStatus(400);
-				json.put("msg", "Missing state id or item id");
+				json.put("msg", "Missing state id or item id or user id");
 			}			
 		}else {
 			response.setStatus(403);

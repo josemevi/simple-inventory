@@ -6,7 +6,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
 
@@ -21,17 +20,17 @@ public class GetItemInfo extends HttpServlet {
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession(false);
 		JSONObject json = new JSONObject();		
-		if(session != null) { 
+		response.setCharacterEncoding("UTF-8");
+		if(con.checkSession(request.getParameter("JSESSIONID"))) { 
 			String item_id = request.getParameter("item_id");
 			if(con.checkString(item_id)) {
 				String query = "SELECT items.item_code, items.item_description, items.item_price, "
 						+ "items.state_id, items_states.state_name, items.item_creation_date, items.user_creator_id, "
-						+ "users.user_name, items.supplier_id, suppliers.supplier_name, suppliers.supplier_country FROM items"
+						+ "items.item_img_url, items.reduction_id, users.user_name, items.supplier_id, suppliers.supplier_name, suppliers.supplier_country FROM items"
 						+" INNER JOIN items_states ON items.state_id = items_states.state_id "
 						+ "INNER JOIN users ON items.user_creator_id = users.user_id "
-						+ "INNER JOIN suppliers ON items.supplier_id = suppliers.supplier_id "
+						+ "LEFT JOIN suppliers ON items.supplier_id = suppliers.supplier_id "
 						+ "WHERE items.item_id="+item_id;
 				if(con.execSql(query) == 1) {
 					JSONObject jsonRes = new JSONObject("{"+con.doubleQuoted("items")+":["+con.getData()+"]}");			

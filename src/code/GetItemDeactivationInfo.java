@@ -6,7 +6,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
 
@@ -20,9 +19,8 @@ public class GetItemDeactivationInfo extends HttpServlet {
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession(false);
 		JSONObject json = new JSONObject();		
-		if(session != null) { 
+		if(con.checkSession(request.getParameter("JSESSIONID"))) { 
 			String item_id = request.getParameter("item_id");
 			if(con.checkString(item_id)) {
 				String query = "SELECT items_deactivations.deactivation_reason, items_deactivations.deactivation_id, "

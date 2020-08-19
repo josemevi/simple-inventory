@@ -151,4 +151,13 @@ public class DBConnection {
     		return false;
     	}
 	}
+	
+	/* checks if the session is vali*/
+	public boolean checkSession(String sessionId) {
+		if(!sessionId.equals("null") && sessionId != null) {
+			return true;
+		}else {
+			return false;
+		}
+	}
 }

@@ -6,7 +6,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
 
@@ -26,39 +25,33 @@ public class EditItemPriceRedux extends HttpServlet {
         super();
     }
 
-	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession(false);		
+	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {		
 		JSONObject json = new JSONObject();		
-		if(session != null) {
+		if(con.checkSession(request.getParameter("JSESSIONID"))) {
 			JSONObject requestJson = con.retrieveJson(request);
-			String item_id = requestJson.getString("item_id");
+			Integer item_id = requestJson.getInt("item_id");
 			String reduction_id = requestJson.getString("reduction_id");
-			Boolean remove = requestJson.getBoolean("remove");
-			if(con.checkString(item_id)) {
-				String query = "UPDATE items SET reduction_id="+reduction_id+" WHERE item_id="+item_id;
-				String query2 = "INSERT INTO items_prices_reductions VALUES(DEFAULT,"+item_id+", "+reduction_id+")";
-				if(!remove) {					
-					if(con.checkString(reduction_id) && con.execSql(query) == 1 && con.execSql(query2) == 1) {
-						response.setStatus(200);
-						json.put("msg", "Price Reduction Edited");	
-					}else {
-						response.setStatus(500);
-						json.put("msg", "Server Error, check price reduction id");
-					}
+			Boolean remove = requestJson.getBoolean("remove");			
+			String query = "UPDATE items SET reduction_id="+reduction_id+" WHERE item_id="+item_id;
+			String query2 = "INSERT INTO items_prices_reductions VALUES(DEFAULT,"+item_id+", "+reduction_id+")";
+			if(!remove) {					
+				if(con.checkString(reduction_id) && con.execSql(query) == 1 && con.execSql(query2) == 1) {
+					response.setStatus(200);
+					json.put("msg", "Price Reduction Edited");	
 				}else {
-					query = "UPDATE items SET reduction_id=null WHERE item_id="+item_id;
-					if(con.execSql(query) == 1) {
-						response.setStatus(200);
-						json.put("msg", "Price Reduction Removed");	
-					}else {
-						response.setStatus(500);
-						json.put("msg", "Server Error");
-					}
-				}				
+					response.setStatus(500);
+					json.put("msg", "Server Error, check price reduction id");
+				}
 			}else {
-				response.setStatus(400);
-				json.put("msg", "Invalid values in important fields detected, please check all the fields");
-			}
+				query = "UPDATE items SET reduction_id=null WHERE item_id="+item_id;
+				if(con.execSql(query) == 1) {
+					response.setStatus(200);
+					json.put("msg", "Price Reduction Removed");	
+				}else {
+					response.setStatus(500);
+					json.put("msg", "Server Error");
+				}
+			}				
 		}else {
 			response.setStatus(403);
 			json.put("msg", "Must Sign In first");

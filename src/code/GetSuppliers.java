@@ -6,7 +6,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
 
@@ -20,12 +19,12 @@ public class GetSuppliers extends HttpServlet {
     }
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession(false);
 		JSONObject json = new JSONObject();
-		if(session != null) { 
+		response.setCharacterEncoding("UTF-8");
+		if(con.checkSession(request.getParameter("JSESSIONID"))) { 
 			String query = "SELECT * FROM suppliers";
 			if(con.execSql(query) == 1) {
-				JSONObject jsonRes = new JSONObject("{"+con.doubleQuoted("suppliers")+":["+con.getData()+"]}");			
+				JSONObject jsonRes = new JSONObject("{"+con.doubleQuoted("suppliers")+":["+con.getData()+"]}");
 				response.setStatus(200);
 				json.put("suppliersData", jsonRes.get("suppliers"));
 			}else {

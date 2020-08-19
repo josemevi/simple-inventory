@@ -6,7 +6,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
 
@@ -19,23 +18,24 @@ public class EditItem extends HttpServlet {
         super();
     }
 
-	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession(false);		
-		JSONObject json = new JSONObject();		
-		if(session != null) { 
+	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {		
+		JSONObject json = new JSONObject();	
+		request.setCharacterEncoding("UTF-8");
+		response.setCharacterEncoding("UTF-8");
+		if(con.checkSession(request.getParameter("JSESSIONID"))) { 
 			JSONObject requestJson = con.retrieveJson(request);
-			String item_id = requestJson.getString("item_id");
+			Integer item_id = requestJson.getInt("item_id");
 			String item_description = requestJson.getString("item_description");
-			String item_price = requestJson.getString("item_price");
-			String supplier_id = requestJson.getString("supplier_id");
+			Float item_price = requestJson.getFloat("item_price");
+			Integer supplier_id = requestJson.getInt("supplier_id");
 			String item_img_url = requestJson.getString("item_img_url");
-			if(!con.checkString(item_price)) {
-				item_price = null;
-			}
-			if(!con.checkString(supplier_id)) {
+			if(supplier_id < 0) {
 				supplier_id = null;
+			}
+			if(item_price < 0) {
+				item_price = null;
 			}				
-			if(con.checkString(item_description) && con.checkString(item_id)) {
+			if(con.checkString(item_description)) {
 				String query = "UPDATE items SET item_description ="+con.simpleQuoted(item_description)+", item_price="+item_price+", supplier_id="+supplier_id
 						+", item_img_url="+con.simpleQuoted(item_img_url)+"WHERE item_id="+item_id;
 				if(con.execSql(query) == 1) {
@@ -48,7 +48,7 @@ public class EditItem extends HttpServlet {
 				
 			}else {
 				response.setStatus(400);
-				json.put("msg", "Item description can't be empty or invalid item id");
+				json.put("msg", "Item description can't be empty");
 			}		
 		}else {
 			response.setStatus(403);

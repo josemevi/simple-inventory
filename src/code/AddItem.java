@@ -8,7 +8,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
 
@@ -21,27 +20,28 @@ public class AddItem extends HttpServlet {
         super();
     }
 	
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession(false);		
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {		
 		JSONObject json = new JSONObject();		
-		if(session != null) { 
+		request.setCharacterEncoding("UTF-8");
+		if(con.checkSession(request.getParameter("JSESSIONID"))) { 			
 			JSONObject requestJson = con.retrieveJson(request);
-			String item_code = requestJson.getString("item_code");
+			Integer user_id = requestJson.getInt("user_id");
+			Integer item_code = requestJson.getInt("item_code");
 			String item_description = requestJson.getString("item_description");
-			String item_price = requestJson.getString("item_price");
-			String supplier_id = requestJson.getString("supplier_id");
+			Float item_price = requestJson.getFloat("item_price");
+			Integer supplier_id = requestJson.getInt("supplier_id");
 			String item_img_url = requestJson.getString("item_img_url");
-			if(!con.checkString(item_price)) {
-				item_price = null;
-			}
-			if(!con.checkString(supplier_id)) {
+			if(supplier_id < 0) {
 				supplier_id = null;
 			}
-			if(con.checkString(item_code) && con.checkString(item_description)) {						
-				if(!con.checkValue("items", "item_code", item_code)) {
+			if(item_price < 0) {
+				item_price = null;
+			}
+			if(con.checkString(item_description)) {						
+				if(!con.checkValue("items", "item_code", item_code.toString())) {
 					String query = "INSERT INTO items (item_id, item_code, item_description, item_price, state_id, supplier_id, item_creation_date, "
 							+ "user_creator_id, item_img_url) VALUES (DEFAULT, "+item_code+", "+con.simpleQuoted(item_description)+", "+item_price+", "
-							+ "DEFAULT, "+con.simpleQuoted(supplier_id)+", "+con.simpleQuoted(Instant.now().toString())+", "+session.getAttribute("userId")+", " 
+							+ "DEFAULT, "+supplier_id+", "+con.simpleQuoted(Instant.now().toString())+", "+user_id+", " 
 							+con.simpleQuoted(item_img_url)+")";
 					if(con.execSql(query) == 1) {
 						response.setStatus(201);

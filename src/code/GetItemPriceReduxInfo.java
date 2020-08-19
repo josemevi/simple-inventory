@@ -6,7 +6,6 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.json.JSONObject;
 
@@ -19,17 +18,15 @@ public class GetItemPriceReduxInfo extends HttpServlet {
 	DBConnection con = new DBConnection();
 
     public GetItemPriceReduxInfo() {
-        super();
-        
+        super();        
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession(false);
 		JSONObject json = new JSONObject();		
-		if(session != null) { 
+		if(con.checkSession(request.getParameter("JSESSIONID"))) { 
 			String item_id = request.getParameter("item_id");
 			if(con.checkString(item_id)) {
-				String query = "SELECT prices_reductions.reduction_price, prices_reductions.reduction_start_date, "
+				String query = "SELECT prices_reductions.reduction_id,prices_reductions.reduction_price, prices_reductions.reduction_start_date, "
 						+ "prices_reductions.reduction_end_date FROM items_prices_reductions "
 						+ "INNER JOIN prices_reductions ON items_prices_reductions.price_reduction_id = prices_reductions.reduction_id "
 						+ " WHERE items_prices_reductions.item_id ="+item_id;
