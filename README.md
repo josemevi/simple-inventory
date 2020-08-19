@@ -21,3 +21,7 @@ use "ng serve --open" to run the client side in a new tab of your default browse
 Make use of your desire Java App server to add the projects resources to a working local enviroment
 
 In any problem no doubt of contacting me via email: josedavidmelian@gmail.com
+
+NOTE: to change the DB connection URI head to DBConnection.java
+
+The server isn't using PreparedStatements because this was only a small and fast project
