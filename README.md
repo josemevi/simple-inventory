@@ -4,6 +4,7 @@ Simple inventory system made using Java servlets and PostgreSQL
 Made using JAVA EE with Servlets and Tomcat 9 for serve in local enviroment 
 
 to setup this project clone directly with any plugin (e.g eclipse git plugin) or download the WAR file and import:
+https://mega.nz/file/Wa5A3IqJ#Xi1m4vuUwN6WgAH98wIgEsklVVB6OZzE9AxuMHT4u0U
 
 make sure to path to a valid server i recommend to use the same as i:
 https://tomcat.apache.org/download-90.cgi
